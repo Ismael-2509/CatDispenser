@@ -1,18 +1,27 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, StatusBar } from 'react-native';
+import { SafeAreaView, StyleSheet, StatusBar, Dimensions } from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
+import HomeScreenWatch from '../screens/HomeScreenWatch';
 
 export default function Page() {
+  const { width, height } = Dimensions.get('window');
+  // Detectar pantallas pequeñas (relojes). Ajusta el umbral si hace falta.
+  const isWatch = Math.min(width, height) <= 360;
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Barra de estado con color claro moderno */}
       <StatusBar barStyle="dark-content" backgroundColor="#F5F7FA" />
-      
-      {/* Tu pantalla principal que solita se conecta a useFeeder */}
-      <HomeScreen />
+      {isWatch ? <HomeScreenWatch /> : <HomeScreen />}
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F7FA',
+  },
+});
 
 const styles = StyleSheet.create({
   container: {
