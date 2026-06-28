@@ -80,10 +80,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.card, 
     padding: Spacing.l, 
     borderRadius: 24, 
-    elevation: 4, 
-    shadowColor: Colors.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    elevation: 4,
     marginBottom: Spacing.m
   },
   label: { color: Colors.textSecondary, fontSize: 14, fontWeight: '600' },
