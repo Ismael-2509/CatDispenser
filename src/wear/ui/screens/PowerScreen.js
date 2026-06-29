@@ -11,6 +11,13 @@ export default function PowerScreen({ feeder, isOnline, onTogglePower, onToggleA
   const layout = useWearLayoutContext();
   const { fonts, spacing, contentWidth } = layout;
 
+  const infoRows = [
+    { label: 'Estado', value: isOnline ? 'En línea' : 'Sin conexión', highlight: isOnline },
+    { label: 'Alimento', value: `${feeder.foodLevel} g` },
+    ...(feeder.battery != null ? [{ label: 'Batería', value: `${feeder.battery}%` }] : []),
+    ...(feeder.firmwareVersion ? [{ label: 'Firmware', value: feeder.firmwareVersion }] : []),
+  ];
+
   return (
     <WearScreenContainer>
       <View style={{ width: contentWidth, flex: 1 }}>
@@ -19,7 +26,10 @@ export default function PowerScreen({ feeder, isOnline, onTogglePower, onToggleA
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: spacing.xl }}>
           <Animated.View
             entering={FadeInDown.duration(400)}
-            style={[styles.switchSection, { marginVertical: layout.compactHeader ? spacing.sm : spacing.lg, gap: spacing.sm }]}
+            style={[
+              styles.switchSection,
+              { marginVertical: layout.compactHeader ? spacing.sm : spacing.lg, gap: spacing.sm },
+            ]}
           >
             <Text style={[styles.stateLabel, { fontSize: fonts.title }]}>
               {feeder.isPoweredOn ? 'Encendido' : 'Apagado'}
@@ -27,41 +37,42 @@ export default function PowerScreen({ feeder, isOnline, onTogglePower, onToggleA
             <WearSwitch value={feeder.isPoweredOn} onToggle={onTogglePower} activeColor={WearColors.primary} />
           </Animated.View>
 
-          <WearCard delay={100} style={[styles.card, { padding: spacing.md, marginBottom: spacing.md }]}>
-            <Row label="Modo automático" labelSize={fonts.body} trailing={
-              <WearSwitch value={feeder.autoMode} onToggle={onToggleAuto} activeColor={WearColors.secondary} />
-            } />
-          </WearCard>
+          {feeder.hasAutoMode && (
+            <WearCard delay={100} style={[styles.card, { padding: spacing.md, marginBottom: spacing.md }]}>
+              <View style={styles.row}>
+                <Text style={[styles.rowLabel, { fontSize: fonts.body }]}>Modo automático</Text>
+                <WearSwitch
+                  value={feeder.autoMode}
+                  onToggle={onToggleAuto}
+                  activeColor={WearColors.secondary}
+                />
+              </View>
+            </WearCard>
+          )}
 
           <WearCard delay={200} style={[styles.card, { padding: spacing.md }]}>
-            <InfoRow label="Batería" value={`${feeder.battery}%`} labelSize={fonts.caption} valueSize={fonts.caption} />
-            <InfoRow label="Estado" value={isOnline ? 'Operativo' : 'Sin conexión'} highlight={isOnline} labelSize={fonts.caption} valueSize={fonts.caption} />
-            <InfoRow label="Alimento restante" value={`${feeder.foodLevel} g`} labelSize={fonts.caption} valueSize={fonts.caption} />
-            <InfoRow label="Firmware" value={feeder.firmwareVersion} last labelSize={fonts.caption} valueSize={fonts.caption} />
+            {infoRows.map((row, index) => (
+              <View
+                key={row.label}
+                style={[styles.infoRow, index < infoRows.length - 1 && styles.infoBorder]}
+              >
+                <Text style={[styles.infoLabel, { fontSize: fonts.caption }]}>{row.label}</Text>
+                <Text
+                  style={[
+                    styles.infoValue,
+                    { fontSize: fonts.caption },
+                    row.highlight && { color: WearColors.primary },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {row.value}
+                </Text>
+              </View>
+            ))}
           </WearCard>
         </ScrollView>
       </View>
     </WearScreenContainer>
-  );
-}
-
-function Row({ label, trailing, labelSize }) {
-  return (
-    <View style={styles.row}>
-      <Text style={[styles.rowLabel, { fontSize: labelSize }]}>{label}</Text>
-      {trailing}
-    </View>
-  );
-}
-
-function InfoRow({ label, value, highlight, last, labelSize, valueSize }) {
-  return (
-    <View style={[styles.infoRow, !last && styles.infoBorder]}>
-      <Text style={[styles.infoLabel, { fontSize: labelSize }]}>{label}</Text>
-      <Text style={[styles.infoValue, { fontSize: valueSize }, highlight && { color: WearColors.primary }]} numberOfLines={1}>
-        {value}
-      </Text>
-    </View>
   );
 }
 

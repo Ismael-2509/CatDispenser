@@ -19,6 +19,7 @@ export default function PrimaryButton({
       <Pressable
         onPress={onPress}
         disabled={disabled || loading}
+        delayPressIn={120}
         android_ripple={{ color: 'rgba(0,0,0,0.15)' }}
         style={({ pressed }) => [
           styles.button,

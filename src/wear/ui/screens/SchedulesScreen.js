@@ -46,7 +46,7 @@ export default function SchedulesScreen({ feeder, onToggleSchedule, onAddSchedul
     setSaving(false);
 
     if (result?.ok) {
-      Alert.alert('Horario agregado', `${formatTime12h(time)} programado correctamente.`);
+      setShowPicker(false);
     } else {
       Alert.alert('Error', 'No se pudo guardar el horario. Revisa la conexión.');
     }

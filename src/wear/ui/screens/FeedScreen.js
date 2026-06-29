@@ -26,29 +26,32 @@ export default function FeedScreen({
 
   return (
     <WearScreenContainer>
-      <View style={{ width: contentWidth, flex: 1 }}>
+      <View style={[styles.wrapper, { width: contentWidth }]}>
         <FeedAnimation playing={showAnimation} />
         <ScreenHeader title="Alimentar" onBack={onBack} />
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+        <ScrollView
+          style={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: spacing.sm }}
+        >
           <CircularGramPicker value={grams} onChange={onGramsChange} />
 
-          <PrimaryButton label="Dispensar ahora" onPress={onFeed} disabled={!canFeed} loading={feeding} />
-
           {!feeder.isPoweredOn && (
-            <Text style={[styles.hint, { fontSize: fonts.caption, marginTop: spacing.sm }]}>
+            <Text style={[styles.hint, { fontSize: fonts.caption, marginBottom: spacing.sm }]}>
               Enciende el dispensador para alimentar
             </Text>
           )}
 
           <Animated.View entering={FadeIn.delay(200).duration(400)}>
-            <WearCard style={[styles.lastCard, { padding: spacing.md, marginTop: spacing.lg }]}>
+            <WearCard style={[styles.lastCard, { padding: spacing.md }]}>
               <Text style={[styles.lastTitle, { fontSize: fonts.caption }]}>Última porción</Text>
               {lastFeed ? (
                 <>
                   <Text style={[styles.lastGrams, { fontSize: fonts.value }]}>{lastFeed.grams} g</Text>
-                  <Text style={[styles.lastMeta, { fontSize: fonts.caption - 1 }]}>{formatDateTime(lastFeed.timestamp)}</Text>
-                  <Text style={[styles.lastLabel, { fontSize: fonts.caption - 1 }]} numberOfLines={2}>{lastFeed.label}</Text>
+                  <Text style={[styles.lastMeta, { fontSize: fonts.caption - 1 }]}>
+                    {formatDateTime(lastFeed.timestamp)}
+                  </Text>
                 </>
               ) : (
                 <Text style={[styles.lastMeta, { fontSize: fonts.caption }]}>Sin registros recientes</Text>
@@ -56,16 +59,30 @@ export default function FeedScreen({
             </WearCard>
           </Animated.View>
         </ScrollView>
+
+        <View style={[styles.footer, { paddingVertical: spacing.sm }]}>
+          <PrimaryButton
+            label="Dispensar ahora"
+            onPress={onFeed}
+            disabled={!canFeed}
+            loading={feeding}
+          />
+        </View>
       </View>
     </WearScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: { flex: 1 },
+  scroll: { flex: 1 },
+  footer: {
+    borderTopWidth: 1,
+    borderTopColor: WearColors.border,
+  },
   hint: { color: WearColors.warning, textAlign: 'center' },
-  lastCard: {},
+  lastCard: { marginTop: 8 },
   lastTitle: { color: WearColors.textSecondary, marginBottom: 4 },
   lastGrams: { color: WearColors.primary, fontWeight: '800' },
   lastMeta: { color: WearColors.textMuted, marginTop: 2 },
-  lastLabel: { color: WearColors.textSecondary, marginTop: 4 },
 });

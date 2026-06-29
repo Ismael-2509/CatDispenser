@@ -6,7 +6,6 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WearLayoutProvider, useWearLayoutContext } from '../ui/hooks/useWearLayout';
 import PageIndicator from '../ui/components/PageIndicator';
@@ -15,11 +14,10 @@ import DashboardScreen from '../ui/screens/DashboardScreen';
 import FeedScreen from '../ui/screens/FeedScreen';
 import PowerScreen from '../ui/screens/PowerScreen';
 import SchedulesScreen from '../ui/screens/SchedulesScreen';
-import SettingsScreen from '../ui/screens/SettingsScreen';
 import { useFeederViewModel } from '../viewmodel/useFeederViewModel';
 import { WearColors } from '../ui/theme/wearTheme';
 
-const SCREEN_IDS = ['dashboard', 'feed', 'power', 'schedules', 'consumption', 'settings'];
+const SCREEN_IDS = ['dashboard', 'feed', 'power', 'schedules', 'consumption'];
 
 export default function WearNavigator() {
   return (
@@ -51,16 +49,14 @@ function WearNavigatorContent() {
   const [showAnimation, setShowAnimation] = useState(false);
 
   const flatListRef = useRef(null);
-  const scrollX = useSharedValue(0);
   const pageWidth = layout.width;
 
   const goToPage = useCallback(
     (index) => {
       flatListRef.current?.scrollToIndex({ index, animated: true });
       setPageIndex(index);
-      scrollX.value = index * pageWidth;
     },
-    [pageWidth, scrollX]
+    []
   );
 
   const goBack = useCallback(() => goToPage(0), [goToPage]);
@@ -88,7 +84,12 @@ function WearNavigatorContent() {
   if (!feeder) {
     return (
       <View style={styles.centered}>
-        <Text style={[styles.errorText, { fontSize: layout.fonts.caption }]}>Sin datos del dispensador</Text>
+        <Text style={[styles.errorText, { fontSize: layout.fonts.caption }]}>
+          Sin datos del dispensador
+        </Text>
+        <Text style={[styles.errorHint, { fontSize: layout.fonts.caption - 1 }]}>
+          Verifica Firebase y que el ESP32 esté activo
+        </Text>
       </View>
     );
   }
@@ -138,18 +139,12 @@ function WearNavigatorContent() {
               onBack={goBack}
             />
           );
-        case 'settings':
-          return <SettingsScreen feeder={feeder} onBack={goBack} />;
         default:
           return null;
       }
     })();
 
-    return (
-      <View style={[styles.page, { width: pageWidth }]}>
-        {content}
-      </View>
-    );
+    return <View style={[styles.page, { width: pageWidth }]}>{content}</View>;
   };
 
   return (
@@ -159,7 +154,7 @@ function WearNavigatorContent() {
         data={SCREEN_IDS}
         renderItem={renderScreen}
         keyExtractor={(item) => item}
-        extraData={pageWidth}
+        extraData={{ pageWidth, pageIndex, feeder, feeding }}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
@@ -176,14 +171,8 @@ function WearNavigatorContent() {
           index,
         })}
         onMomentumScrollEnd={(e) => {
-          const index = Math.round(e.nativeEvent.contentOffset.x / pageWidth);
-          setPageIndex(index);
-          scrollX.value = index * pageWidth;
+          setPageIndex(Math.round(e.nativeEvent.contentOffset.x / pageWidth));
         }}
-        onScroll={(e) => {
-          scrollX.value = e.nativeEvent.contentOffset.x;
-        }}
-        scrollEventThrottle={16}
       />
 
       {layout.showPageIndicator && (
@@ -204,6 +193,7 @@ const styles = StyleSheet.create({
     backgroundColor: WearColors.background,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 20,
   },
   loadingText: {
     marginTop: 8,
@@ -214,6 +204,10 @@ const styles = StyleSheet.create({
     color: WearColors.danger,
     fontWeight: '700',
     textAlign: 'center',
-    paddingHorizontal: 16,
+  },
+  errorHint: {
+    color: WearColors.textMuted,
+    textAlign: 'center',
+    marginTop: 6,
   },
 });

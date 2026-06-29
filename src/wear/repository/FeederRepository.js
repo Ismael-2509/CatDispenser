@@ -48,14 +48,15 @@ export class FeederRepository {
       name: raw.nombre ?? 'Dispensador Mascotas',
       foodLevel: raw.pesoActual ?? 0,
       isPoweredOn: Boolean(raw.estadoDispensador),
-      autoMode: raw.modoAutomatico ?? true,
-      battery: raw.bateria ?? (raw.estadoDispensador ? 78 : 42),
-      wifiConnected: raw.wifi ?? true,
+      hasAutoMode: raw.modoAutomatico !== undefined,
+      autoMode: Boolean(raw.modoAutomatico),
+      battery: raw.bateria ?? null,
+      wifiConnected: raw.wifi ?? null,
       schedules,
       history,
       lastFeed,
-      firmwareVersion: raw.firmware ?? 'v1.2.0',
-      deviceId: raw.deviceId ?? 'ESP32-001',
+      firmwareVersion: raw.firmware ?? null,
+      deviceId: raw.deviceId ?? null,
     };
   }
 
